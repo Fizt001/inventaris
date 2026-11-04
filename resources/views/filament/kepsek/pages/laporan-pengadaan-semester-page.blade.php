@@ -20,7 +20,19 @@
         </div>
 
         <!-- Metric Cards Eksekutif -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <style>
+            .kepsek-stats-grid {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 16px;
+            }
+            @media (max-width: 768px) {
+                .kepsek-stats-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+        <div class="kepsek-stats-grid">
             <!-- Total Usulan -->
             <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4">
                 <div class="p-3 bg-violet-100 dark:bg-violet-950/60 text-violet-600 dark:text-violet-400 rounded-xl">

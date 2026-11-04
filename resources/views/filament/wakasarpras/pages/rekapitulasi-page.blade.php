@@ -34,7 +34,19 @@
         </div>
 
         <!-- Metric Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <style>
+            .waka-stats-grid {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 16px;
+            }
+            @media (max-width: 768px) {
+                .waka-stats-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+        <div class="waka-stats-grid">
             <!-- Total Masuk -->
             <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-center gap-4">
                 <div class="p-3 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-xl">

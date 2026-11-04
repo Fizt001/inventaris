@@ -1,6 +1,24 @@
 <x-filament-panels::page>
-    {{-- ═══ STATS BANNER / QUICK OVERVIEW ═══ --}}
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    {{-- ═══ STATS BANNER / QUICK OVERVIEW (1 BARIS x 4) ═══ --}}
+    <style>
+        .lab-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 900px) {
+            .lab-stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 480px) {
+            .lab-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <div class="lab-stats-grid">
         <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-xs dark:border-white/10 dark:bg-gray-900">
             <div class="flex items-center gap-3">
                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400">
