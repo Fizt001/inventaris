@@ -417,10 +417,24 @@ class BarangKeluarPage extends Page
         return $query->orderBy('nama')->get();
     }
 
+    public function setCategory(?int $categoryId): void
+    {
+        $this->selectedCategoryId = $categoryId;
+    }
+
+    public function getTotalItemsCountProperty(): int
+    {
+        $unitId = auth()->user()?->getEffectiveUnitId();
+        return Item::where('unit_id', $unitId)->where('aktif', true)->count();
+    }
+
     public function getAvailableCategoriesProperty(): BaseCollection
     {
         $unitId = auth()->user()?->getEffectiveUnitId();
-        return Category::where('unit_id', $unitId)->orderBy('nama')->get();
+        return Category::where('unit_id', $unitId)
+            ->withCount(['items' => fn ($q) => $q->where('aktif', true)])
+            ->orderBy('nama')
+            ->get();
     }
 
     public function getGroupedMatrixItemsProperty()

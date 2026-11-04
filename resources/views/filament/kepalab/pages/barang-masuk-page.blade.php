@@ -93,6 +93,44 @@
             </div>
         </div>
 
+        {{-- ═══ BARISAN TAB KATEGORI DI ATAS TABEL (PILIH KATEGORI) ═══ --}}
+        @php
+            $categories = $this->availableCategories;
+            $totalCount = $this->totalItemsCount;
+        @endphp
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+            {{-- Tab: Semua Kategori --}}
+            <button
+                type="button"
+                wire:click="setCategory(null)"
+                class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap {{ is_null($selectedCategoryId) ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 ring-2 ring-indigo-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700' }}"
+            >
+                <x-filament::icon icon="heroicon-m-squares-2x2" class="w-4 h-4" />
+                <span>Semua Kategori</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold {{ is_null($selectedCategoryId) ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}">
+                    {{ $totalCount }}
+                </span>
+            </button>
+
+            {{-- Tabs Masing-Masing Kategori --}}
+            @foreach ($categories as $category)
+                @php
+                    $isActive = $selectedCategoryId === $category->id;
+                @endphp
+                <button
+                    type="button"
+                    wire:click="setCategory({{ $category->id }})"
+                    class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap {{ $isActive ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 ring-2 ring-indigo-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700' }}"
+                >
+                    <x-filament::icon icon="heroicon-m-tag" class="w-3.5 h-3.5 {{ $isActive ? 'text-white' : 'text-gray-400' }}" />
+                    <span>{{ $category->nama }}</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold {{ $isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}">
+                        {{ $category->items_count }}
+                    </span>
+                </button>
+            @endforeach
+        </div>
+
         {{-- ═══ TABEL DINAMIS BARANG MASUK ═══ --}}
         <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
             <div class="overflow-x-auto">
@@ -187,142 +225,105 @@
                         </tr>
                     </thead>
 
-                    {{-- ═══ TBODY: DIKELOMPOKKAN PER KATEGORI DENGAN ACCORDION BUKA-TUTUP ═══ --}}
+                    {{-- ═══ TBODY: DAFTAR BARANG SESUAI TAB KATEGORI YANG DIPILIH ═══ --}}
                     @php
                         $matrixData = $this->matrixData;
                         $itemTotals = $this->itemMonthTotals;
-                        $groupedItems = $this->groupedMatrixItems;
+                        $itemsList = $this->matrixItems;
                     @endphp
 
-                    @forelse ($groupedItems as $categoryName => $items)
-                        <tbody
-                            x-data="{ open: true }"
-                            x-on:collapse-all.window="open = false"
-                            x-on:expand-all.window="open = true"
-                            class="border-b-2 border-slate-300 dark:border-gray-700 bg-white dark:bg-gray-900"
-                        >
-                            {{-- ═══ HEADER KATEGORI (SERAGAM DENGAN DAFTAR BARANG) ═══ --}}
-                            <tr
-                                @click="open = !open"
-                                class="fi-ta-group-header cursor-pointer select-none border-y border-gray-200 bg-gray-50 dark:border-white/10 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
-                                title="Klik untuk buka / tutup kelompok {{ $categoryName }}"
-                            >
-                                <td colspan="{{ count($activeDates) + 5 }}" class="px-4 py-2.5">
-                                    <div class="flex w-full items-center justify-between">
-                                        {{-- Sisi Kiri: Nama Kategori + Panah Buka-Tutup --}}
-                                        <div class="flex items-center gap-x-2">
-                                            <h4 class="text-sm font-bold text-gray-950 dark:text-white">
-                                                Kategori / Kelompok: {{ $categoryName }}
-                                            </h4>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-gray-900">
+                        @forelse ($itemsList as $item)
+                            @php
+                                $totalBulanIni = $itemTotals[$item->id] ?? 0;
+                            @endphp
+                            <tr class="hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors">
+                                {{-- 0. Checkbox per Barang (Pola Daftarkan Barang) --}}
+                                <td class="w-[38px] min-w-[38px] px-2 py-2 text-center border-r border-gray-200 dark:border-gray-800">
+                                    <input
+                                        type="checkbox"
+                                        value="{{ $item->id }}"
+                                        wire:model.live="selectedItemIds"
+                                        class="rounded border-gray-300 text-indigo-600 shadow-xs focus:ring-indigo-500 cursor-pointer h-4 w-4"
+                                    />
+                                </td>
 
-                                            <x-filament::icon-button
-                                                color="gray"
-                                                icon="heroicon-m-chevron-up"
-                                                size="sm"
-                                                class="transition-transform duration-200"
-                                                ::class="{ '-rotate-180': !open }"
-                                            />
-                                        </div>
+                                {{-- 1. Kode --}}
+                                <td class="w-[100px] min-w-[100px] px-3 py-2 font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 border-r border-gray-200 dark:border-gray-800 whitespace-nowrap">
+                                    <span class="rounded-md bg-indigo-50 px-2 py-0.5 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/50">
+                                        {{ $item->kode }}
+                                    </span>
+                                </td>
 
-                                        {{-- Sisi Kanan: Tulisan Jumlah Barang (Pepet Kanan) --}}
-                                        <span class="text-sm font-bold text-gray-700 dark:text-gray-300">
-                                            {{ count($items) }} Barang
-                                        </span>
+                                {{-- 2. Nama Barang / Komponen --}}
+                                <td class="min-w-[380px] lg:min-w-[460px] px-4 py-2 font-bold text-gray-950 dark:text-white border-r border-gray-200 dark:border-gray-800 text-[13px]">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span>{{ $item->nama }}</span>
+                                        @if(is_null($selectedCategoryId) && $item->category)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+                                                {{ $item->category->nama }}
+                                            </span>
+                                        @endif
                                     </div>
                                 </td>
-                            </tr>
 
-                            {{-- ═══ DAFTAR BARANG DI DALAM KATEGORI INI ═══ --}}
-                            @foreach ($items as $item)
-                                @php
-                                    $totalBulanIni = $itemTotals[$item->id] ?? 0;
-                                @endphp
-                                <tr
-                                    x-show="open"
-                                    class="hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors border-b border-gray-100 dark:border-gray-800"
-                                >
-                                    {{-- 0. Checkbox per Barang (Pola Daftarkan Barang) --}}
-                                    <td class="w-[38px] min-w-[38px] px-2 py-2 text-center border-r border-gray-200 dark:border-gray-800">
+                                {{-- 3. Kolom Tanggal Dinamis (Input Angka Langsung - Ramping & Kompak) --}}
+                                @forelse ($activeDates as $date)
+                                    @php
+                                        $val = $matrixData[$item->id][$date] ?? null;
+                                        $isToday = $date === now()->toDateString();
+                                    @endphp
+                                    <td class="w-[48px] min-w-[48px] max-w-[50px] p-0.5 text-center border-r border-gray-200 dark:border-gray-800 {{ $isToday ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : '' }}">
                                         <input
-                                            type="checkbox"
-                                            value="{{ $item->id }}"
-                                            wire:model.live="selectedItemIds"
-                                            class="rounded border-gray-300 text-indigo-600 shadow-xs focus:ring-indigo-500 cursor-pointer h-4 w-4"
+                                            type="number"
+                                            min="0"
+                                            step="1"
+                                            value="{{ $val ?: '' }}"
+                                            placeholder="0"
+                                            wire:change="updateIncomingQty({{ $item->id }}, '{{ $date }}', $event.target.value)"
+                                            wire:loading.class="opacity-40 pointer-events-none"
+                                            wire:target="updateIncomingQty({{ $item->id }}, '{{ $date }}')"
+                                            style="{{ $val > 0 ? 'background-color: #d1fae5 !important; border: 1.5px solid #10b981 !important; color: #064e3b !important; font-weight: 900;' : 'background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; font-weight: 700;' }}"
+                                            class="w-full h-7 text-center text-xs rounded transition-all focus:ring-1 focus:ring-indigo-500 focus:outline-hidden p-0"
                                         />
                                     </td>
-
-                                    {{-- 1. Kode --}}
-                                    <td class="w-[100px] min-w-[100px] px-3 py-2 font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400 border-r border-gray-200 dark:border-gray-800 whitespace-nowrap">
-                                        <span class="rounded-md bg-indigo-50 px-2 py-0.5 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/50">
-                                            {{ $item->kode }}
-                                        </span>
+                                @empty
+                                    <td class="px-4 py-2 text-center text-gray-400 border-r border-gray-200 dark:border-gray-800">
+                                        -
                                     </td>
+                                @endforelse
 
-                                    {{-- 2. Nama Barang / Komponen (Diperbesar Luas) --}}
-                                    <td class="min-w-[380px] lg:min-w-[460px] px-4 py-2 font-bold text-gray-950 dark:text-white border-r border-gray-200 dark:border-gray-800 text-[13px]">
-                                        {{ $item->nama }}
-                                    </td>
+                                {{-- 4. Masuk Bulan Ini --}}
+                                <td class="w-[110px] min-w-[110px] px-2 py-2 text-center border-r border-gray-200 dark:border-gray-800 bg-indigo-50/40 dark:bg-indigo-950/30 whitespace-nowrap">
+                                    <span class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-black {{ $totalBulanIni > 0 ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-900/70 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-800' : 'text-gray-400' }}">
+                                        {{ $totalBulanIni > 0 ? "+{$totalBulanIni}" : '0' }}
+                                    </span>
+                                </td>
 
-                                    {{-- 3. Kolom Tanggal Dinamis (Input Angka Langsung - Ramping & Kompak) --}}
-                                    @forelse ($activeDates as $date)
-                                        @php
-                                            $val = $matrixData[$item->id][$date] ?? null;
-                                            $isToday = $date === now()->toDateString();
-                                        @endphp
-                                        <td class="w-[48px] min-w-[48px] max-w-[50px] p-0.5 text-center border-r border-gray-200 dark:border-gray-800 {{ $isToday ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : '' }}">
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                step="1"
-                                                value="{{ $val ?: '' }}"
-                                                placeholder="0"
-                                                wire:change="updateIncomingQty({{ $item->id }}, '{{ $date }}', $event.target.value)"
-                                                wire:loading.class="opacity-40 pointer-events-none"
-                                                wire:target="updateIncomingQty({{ $item->id }}, '{{ $date }}')"
-                                                style="{{ $val > 0 ? 'background-color: #d1fae5 !important; border: 1.5px solid #10b981 !important; color: #064e3b !important; font-weight: 900;' : 'background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; font-weight: 700;' }}"
-                                                class="w-full h-7 text-center text-xs rounded transition-all focus:ring-1 focus:ring-indigo-500 focus:outline-hidden p-0"
-                                            />
-                                        </td>
-                                    @empty
-                                        <td class="px-4 py-2 text-center text-gray-400 border-r border-gray-200 dark:border-gray-800">
-                                            -
-                                        </td>
-                                    @endforelse
-
-                                    {{-- 4. Masuk Bulan Ini --}}
-                                    <td class="w-[110px] min-w-[110px] px-2 py-2 text-center border-r border-gray-200 dark:border-gray-800 bg-indigo-50/40 dark:bg-indigo-950/30 whitespace-nowrap">
-                                        <span class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-black {{ $totalBulanIni > 0 ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-900/70 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-800' : 'text-gray-400' }}">
-                                            {{ $totalBulanIni > 0 ? "+{$totalBulanIni}" : '0' }}
-                                        </span>
-                                    </td>
-
-                                    {{-- 5. Aksi: Tombol Detail (Menggantikan Kolom Status) --}}
-                                    <td class="w-[80px] min-w-[80px] px-2 py-2 text-center">
-                                        <button
-                                            type="button"
-                                            wire:click="openDetailModal({{ $item->id }})"
-                                            class="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-1 text-xs font-bold text-indigo-700 hover:bg-indigo-100 hover:text-indigo-950 dark:bg-indigo-950/60 dark:text-indigo-300 dark:hover:bg-indigo-900 border border-indigo-200 dark:border-indigo-800 transition-colors shadow-2xs cursor-pointer"
-                                            title="Lihat Detail Tanggal & Sumber Pengadaan"
-                                        >
-                                            <x-filament::icon icon="heroicon-m-eye" class="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-                                            <span>Detail</span>
-                                        </button>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    @empty
-                        <tbody class="bg-white dark:bg-gray-900">
+                                {{-- 5. Aksi: Tombol Detail --}}
+                                <td class="w-[80px] min-w-[80px] px-2 py-2 text-center">
+                                    <button
+                                        type="button"
+                                        wire:click="openDetailModal({{ $item->id }})"
+                                        class="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-1 text-xs font-bold text-indigo-700 hover:bg-indigo-100 hover:text-indigo-950 dark:bg-indigo-950/60 dark:text-indigo-300 dark:hover:bg-indigo-900 border border-indigo-200 dark:border-indigo-800 transition-colors shadow-2xs cursor-pointer"
+                                        title="Lihat Detail Tanggal & Sumber Pengadaan"
+                                    >
+                                        <x-filament::icon icon="heroicon-m-eye" class="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                                        <span>Detail</span>
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
                             <tr>
                                 <td colspan="{{ count($activeDates) + 5 }}" class="py-12 text-center text-gray-400">
                                     <div class="flex flex-col items-center justify-center gap-2">
                                         <x-filament::icon icon="heroicon-o-cube" class="h-10 w-10 text-gray-300 dark:text-gray-600" />
-                                        <p class="text-sm font-medium">Tidak ada barang yang ditemukan.</p>
+                                        <p class="text-sm font-medium">Tidak ada barang dalam kategori ini.</p>
                                     </div>
                                 </td>
                             </tr>
-                        </tbody>
-                    @endforelse
+                        @endforelse
+                    </tbody>
                 </table>
             </div>
         </div>
