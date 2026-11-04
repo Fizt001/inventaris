@@ -18,16 +18,54 @@ use Illuminate\Database\Eloquent\Collection;
 
 class DaftarBarangPage extends InlineManagePage
 {
+    protected static string  $view            = 'filament.kepalab.pages.daftar-barang-page';
     protected static ?string $navigationIcon  = 'heroicon-o-plus-circle';
     protected static ?string $navigationGroup = 'Manajemen Kepala Lab';
     protected static ?string $navigationLabel = 'Daftarkan Barang Baru';
     protected static ?string $title           = 'Pendaftaran Master Barang & Komponen Lab';
     protected static ?string $slug            = 'daftar-barang';
-    protected static ?int    $navigationSort  = 1;
+    protected static ?int    $navigationSort  = 2;
+
+    public ?int $selectedCategoryId = null;
 
     public static function shouldRegisterNavigation(): bool
     {
         return session('lab_active_role', 'toolman') === 'kepala_lab';
+    }
+
+    public function mount(): void
+    {
+        parent::mount();
+
+        $unitId = auth()->user()?->getEffectiveUnitId() ?? \App\Models\Unit::value('id');
+        $firstCat = Category::where('unit_id', $unitId)->orderBy('nama')->first();
+        if ($firstCat) {
+            $this->selectedCategoryId = $firstCat->id;
+        }
+    }
+
+    public function setCategory(?int $categoryId): void
+    {
+        $this->selectedCategoryId = $categoryId;
+        $this->resetPage();
+    }
+
+    public function getAvailableCategoriesProperty()
+    {
+        $unitId = auth()->user()?->getEffectiveUnitId() ?? \App\Models\Unit::value('id');
+        return Category::where('unit_id', $unitId)
+            ->withCount(['items' => fn ($q) => $q->where('aktif', true)])
+            ->orderBy('nama')
+            ->get();
+    }
+
+    public function getUncategorizedItemsCountProperty(): int
+    {
+        $unitId = auth()->user()?->getEffectiveUnitId() ?? \App\Models\Unit::value('id');
+        return Item::where('unit_id', $unitId)
+            ->where('aktif', true)
+            ->whereNull('category_id')
+            ->count();
     }
 
     public function getCreateHeading(): string
@@ -69,11 +107,15 @@ class DaftarBarangPage extends InlineManagePage
         $kode   = strtoupper(trim($data['kode']));
         $nama   = trim($data['nama']);
 
+        $categoryId = ($this->selectedCategoryId && $this->selectedCategoryId > 0)
+            ? $this->selectedCategoryId
+            : null;
+
         $item = Item::create([
             'unit_id'         => $unitId,
             'kode'            => $kode,
             'nama'            => $nama,
-            'category_id'     => null, // Diatur massal via ceklis di bawah
+            'category_id'     => $categoryId,
             'tipe_barang'     => 'peralatan',
             'satuan'          => 'unit',
             'unit_room_id'    => null,
@@ -102,8 +144,10 @@ class DaftarBarangPage extends InlineManagePage
 
         return $table
             ->query(
-                Item::query()
+                fn () => Item::query()
                     ->where('unit_id', $unitId)
+                    ->when($this->selectedCategoryId === -1, fn ($q) => $q->whereNull('category_id'))
+                    ->when($this->selectedCategoryId && $this->selectedCategoryId > 0, fn ($q) => $q->where('category_id', $this->selectedCategoryId))
                     ->with(['room', 'roomArea', 'category', 'stock'])
             )
             ->columns([
@@ -133,12 +177,6 @@ class DaftarBarangPage extends InlineManagePage
                     ->color(fn (string $state): string => Item::TIPE_COLORS[$state] ?? 'gray')
                     ->formatStateUsing(fn ($state) => Item::TIPE_LABELS[$state] ?? $state),
             ])
-            ->defaultGroup(
-                Tables\Grouping\Group::make('category_id')
-                    ->label('Kategori / Kelompok')
-                    ->getTitleFromRecordUsing(fn (Item $record): string => $record->category?->nama ?? '⚠️ Belum Dikelompokkan')
-                    ->collapsible()
-            )
             ->recordAction(Tables\Actions\ViewAction::class)
             ->filters([
                 Tables\Filters\Filter::make('belum_dikelompokkan')
