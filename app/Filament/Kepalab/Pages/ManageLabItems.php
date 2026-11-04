@@ -21,11 +21,16 @@ class ManageLabItems extends Page implements HasTable
     use InteractsWithTable;
 
     protected static ?string $navigationIcon  = 'heroicon-o-chart-bar';
-    protected static ?string $navigationGroup = 'Inventaris dan Stok';
-    protected static ?string $navigationLabel = 'Inventaris Lab (Monitoring)';
+    protected static ?string $navigationGroup = 'Inventaris & Monitoring';
+    protected static ?string $navigationLabel = 'Monitoring Stok Lab';
     protected static ?string $title           = 'Wadah Monitoring Inventaris Lab';
     protected static ?string $slug            = 'items';
-    protected static ?int    $navigationSort  = 3;
+    protected static ?int    $navigationSort  = 1;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return true;
+    }
 
     protected static string $view = 'filament.kepalab.pages.manage-lab-items';
 

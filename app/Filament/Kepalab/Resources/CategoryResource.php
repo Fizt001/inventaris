@@ -15,11 +15,16 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
     protected static ?string $navigationIcon = 'heroicon-o-tag';
-    protected static ?string $navigationGroup = 'Ruang dan Master';
-    protected static ?string $navigationLabel = 'Master Kategori Lab';
+    protected static ?string $navigationGroup = 'Manajemen Kepala Lab';
+    protected static ?string $navigationLabel = 'Kategori Barang Lab';
     protected static ?string $modelLabel = 'Kategori';
     protected static ?string $pluralModelLabel = 'Master Kategori Alat & Bahan';
     protected static ?int $navigationSort = 2;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return session('lab_active_role', 'toolman') === 'kepala_lab';
+    }
 
     public static function getEloquentQuery(): Builder
     {

@@ -15,11 +15,16 @@ use Illuminate\Support\Facades\DB;
 class BarangMasukPage extends Page
 {
     protected static ?string $navigationIcon  = 'heroicon-o-arrow-down-tray';
-    protected static ?string $navigationGroup = 'Inventaris dan Stok';
+    protected static ?string $navigationGroup = 'Operasional Toolman';
     protected static ?string $navigationLabel = 'Barang Masuk';
     protected static ?string $title           = 'Penerimaan Barang Masuk ke Lab';
     protected static ?string $slug            = 'barang-masuk';
-    protected static ?int    $navigationSort  = 2;
+    protected static ?int    $navigationSort  = 1;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return session('lab_active_role', 'toolman') === 'toolman';
+    }
 
     protected static string $view = 'filament.kepalab.pages.barang-masuk-page';
 

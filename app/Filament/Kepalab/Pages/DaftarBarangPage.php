@@ -19,11 +19,16 @@ use Illuminate\Database\Eloquent\Collection;
 class DaftarBarangPage extends InlineManagePage
 {
     protected static ?string $navigationIcon  = 'heroicon-o-plus-circle';
-    protected static ?string $navigationGroup = 'Inventaris dan Stok';
-    protected static ?string $navigationLabel = 'Daftarkan Barang';
+    protected static ?string $navigationGroup = 'Manajemen Kepala Lab';
+    protected static ?string $navigationLabel = 'Daftarkan Barang Baru';
     protected static ?string $title           = 'Pendaftaran Master Barang & Komponen Lab';
     protected static ?string $slug            = 'daftar-barang';
     protected static ?int    $navigationSort  = 1;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return session('lab_active_role', 'toolman') === 'kepala_lab';
+    }
 
     public function getCreateHeading(): string
     {

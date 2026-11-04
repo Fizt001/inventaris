@@ -27,21 +27,22 @@ class KepalabPanelProvider extends PanelProvider
             ->id('kepalab')
             ->path('kepalab')
             ->login()
-            ->brandName('Inventaris SMK — Kepala Lab')
+            ->brandName('Inventaris SMK — Lab & Bengkel')
             ->brandLogo(fn () => view('filament.brand'))
             ->darkMode(true)
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::SIDEBAR_NAV_START,
+                fn () => view('filament.kepalab.components.role-switcher')
+            )
             ->colors([
                 'primary' => Color::Teal,
                 'gray'    => Color::Slate,
             ])
             ->font('Inter', 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap')
             ->navigationGroups([
-                NavigationGroup::make('Ruang dan Master')->collapsible(false),
-                NavigationGroup::make('Inventaris dan Stok')->collapsible(false),
-                NavigationGroup::make('Peminjaman dan Pemakaian')->collapsible(false),
-                NavigationGroup::make('Aset Tetap')->collapsible(false),
-                NavigationGroup::make('Anggaran & Pengadaan')->collapsible(false),
-                NavigationGroup::make('Laporan')->collapsible(false),
+                NavigationGroup::make('Operasional Toolman')->collapsible(false),
+                NavigationGroup::make('Manajemen Kepala Lab')->collapsible(false),
+                NavigationGroup::make('Inventaris & Monitoring')->collapsible(false),
             ])
             ->discoverResources(in: app_path('Filament/Kepalab/Resources'), for: 'App\\Filament\\Kepalab\\Resources')
             ->discoverPages(in: app_path('Filament/Kepalab/Pages'), for: 'App\\Filament\\Kepalab\\Pages')

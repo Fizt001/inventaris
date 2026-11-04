@@ -22,6 +22,11 @@ class RoomAreaResource extends Resource
     protected static ?string $pluralModelLabel = 'Daftar Ruang & Area Lab';
     protected static ?int $navigationSort = 1;
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()

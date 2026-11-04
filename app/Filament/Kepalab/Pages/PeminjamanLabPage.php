@@ -18,11 +18,16 @@ use Illuminate\Support\Str;
 class PeminjamanLabPage extends InlineManagePage
 {
     protected static ?string $navigationIcon  = 'heroicon-o-clipboard-document-check';
-    protected static ?string $navigationGroup = 'Peminjaman dan Pemakaian';
-    protected static ?string $navigationLabel = 'Peminjaman & Pemakaian';
+    protected static ?string $navigationGroup = 'Operasional Toolman';
+    protected static ?string $navigationLabel = 'Peminjaman Alat & Bahan';
     protected static ?string $title           = 'Peminjaman Alat & Pemakaian Bahan Praktik';
     protected static ?string $slug            = 'peminjaman';
-    protected static ?int    $navigationSort  = 1;
+    protected static ?int    $navigationSort  = 3;
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return session('lab_active_role', 'toolman') === 'toolman';
+    }
 
     public function getCreateHeading(): string
     {
