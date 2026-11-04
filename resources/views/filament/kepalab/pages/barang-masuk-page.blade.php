@@ -100,14 +100,19 @@
         @endphp
         <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
             {{-- Tab: Semua Kategori --}}
+            @php $isAllActive = is_null($selectedCategoryId); @endphp
             <button
                 type="button"
                 wire:click="setCategory(null)"
-                class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap {{ is_null($selectedCategoryId) ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 ring-2 ring-indigo-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700' }}"
+                style="{{ $isAllActive ? 'background-color: #4f46e5 !important; color: #ffffff !important; border-color: #4f46e5 !important;' : 'background-color: #ffffff; color: #1e293b; border-color: #cbd5e1;' }}"
+                class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap border shadow-xs hover:opacity-90"
             >
-                <x-filament::icon icon="heroicon-m-squares-2x2" class="w-4 h-4" />
-                <span>Semua Kategori</span>
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold {{ is_null($selectedCategoryId) ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}">
+                <x-filament::icon icon="heroicon-m-squares-2x2" class="w-4 h-4" style="{{ $isAllActive ? 'color: #ffffff !important;' : 'color: #64748b;' }}" />
+                <span style="{{ $isAllActive ? 'color: #ffffff !important;' : 'color: #1e293b;' }}">Semua Kategori</span>
+                <span
+                    style="{{ $isAllActive ? 'background-color: rgba(255, 255, 255, 0.25) !important; color: #ffffff !important;' : 'background-color: #f1f5f9; color: #334155;' }}"
+                    class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold"
+                >
                     {{ $totalCount }}
                 </span>
             </button>
@@ -120,11 +125,15 @@
                 <button
                     type="button"
                     wire:click="setCategory({{ $category->id }})"
-                    class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap {{ $isActive ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/20 ring-2 ring-indigo-600' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700' }}"
+                    style="{{ $isActive ? 'background-color: #4f46e5 !important; color: #ffffff !important; border-color: #4f46e5 !important;' : 'background-color: #ffffff; color: #1e293b; border-color: #cbd5e1;' }}"
+                    class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap border shadow-xs hover:opacity-90"
                 >
-                    <x-filament::icon icon="heroicon-m-tag" class="w-3.5 h-3.5 {{ $isActive ? 'text-white' : 'text-gray-400' }}" />
-                    <span>{{ $category->nama }}</span>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold {{ $isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' }}">
+                    <x-filament::icon icon="heroicon-m-tag" class="w-3.5 h-3.5" style="{{ $isActive ? 'color: #ffffff !important;' : 'color: #64748b;' }}" />
+                    <span style="{{ $isActive ? 'color: #ffffff !important;' : 'color: #1e293b;' }}">{{ $category->nama }}</span>
+                    <span
+                        style="{{ $isActive ? 'background-color: rgba(255, 255, 255, 0.25) !important; color: #ffffff !important;' : 'background-color: #f1f5f9; color: #334155;' }}"
+                        class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold"
+                    >
                         {{ $category->items_count }}
                     </span>
                 </button>
