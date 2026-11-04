@@ -93,7 +93,7 @@ class BarangMasukPage extends Page
      */
     public function loadActiveDates(): void
     {
-        $unitId    = auth()->user()?->unit_id;
+        $unitId    = auth()->user()?->getEffectiveUnitId();
         $startDate = Carbon::createFromDate($this->selectedYear, $this->selectedMonth, 1)->startOfMonth();
         $endDate   = Carbon::createFromDate($this->selectedYear, $this->selectedMonth, 1)->endOfMonth();
 
@@ -294,7 +294,7 @@ class BarangMasukPage extends Page
 
         $sourceDate = $this->dateToDelete;
         $targetDate = $this->targetDateToMove;
-        $unitId     = auth()->user()?->unit_id;
+        $unitId     = auth()->user()?->getEffectiveUnitId();
         $itemIds    = Item::where('unit_id', $unitId)->pluck('id')->toArray();
         $movedCount = 0;
 
@@ -363,7 +363,7 @@ class BarangMasukPage extends Page
             return 0;
         }
 
-        $unitId  = auth()->user()?->unit_id;
+        $unitId  = auth()->user()?->getEffectiveUnitId();
         $itemIds = Item::where('unit_id', $unitId)->pluck('id')->toArray();
 
         return Transaction::where('tipe', 'masuk')
@@ -382,7 +382,7 @@ class BarangMasukPage extends Page
         }
 
         $targetDate = $this->dateToDelete;
-        $unitId     = auth()->user()?->unit_id;
+        $unitId     = auth()->user()?->getEffectiveUnitId();
         $itemIds    = Item::where('unit_id', $unitId)->pluck('id')->toArray();
         $deletedCount = 0;
 
@@ -438,7 +438,7 @@ class BarangMasukPage extends Page
      */
     public function getMatrixItemsProperty(): BaseCollection
     {
-        $unitId = auth()->user()?->unit_id;
+        $unitId = auth()->user()?->getEffectiveUnitId();
 
         $query = Item::query()
             ->where('unit_id', $unitId)
@@ -465,7 +465,7 @@ class BarangMasukPage extends Page
      */
     public function getAvailableCategoriesProperty(): BaseCollection
     {
-        $unitId = auth()->user()?->unit_id;
+        $unitId = auth()->user()?->getEffectiveUnitId();
         return Category::where('unit_id', $unitId)->orderBy('nama')->get();
     }
 
@@ -537,7 +537,7 @@ class BarangMasukPage extends Page
      */
     public function updateIncomingQty(int $itemId, string $date, mixed $newQty): void
     {
-        $unitId = auth()->user()?->unit_id;
+        $unitId = auth()->user()?->getEffectiveUnitId();
         $userId = auth()->id();
         $item   = Item::where('unit_id', $unitId)->find($itemId);
 
@@ -649,7 +649,7 @@ class BarangMasukPage extends Page
      */
     public function openDetailModal(int $itemId): void
     {
-        $unitId = auth()->user()?->unit_id;
+        $unitId = auth()->user()?->getEffectiveUnitId();
         $this->detailItem = Item::where('unit_id', $unitId)->with(['category', 'room', 'stock'])->find($itemId);
 
         if (! $this->detailItem) {
@@ -801,7 +801,7 @@ class BarangMasukPage extends Page
 
         $effectiveSource = ! empty($this->bulkCustomSource) ? trim($this->bulkCustomSource) : $this->bulkSource;
         $countItems      = count($this->selectedItemIds);
-        $unitId          = auth()->user()?->unit_id;
+        $unitId          = auth()->user()?->getEffectiveUnitId();
 
         $query = Transaction::where('tipe', 'masuk')
             ->whereIn('item_id', $this->selectedItemIds);

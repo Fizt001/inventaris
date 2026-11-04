@@ -7,10 +7,22 @@ use Livewire\Component;
 class LabRoleSwitcher extends Component
 {
     public string $currentRole = 'toolman';
+    public ?int $selectedUnitId = null;
 
     public function mount(): void
     {
         $this->currentRole = session('lab_active_role', 'toolman');
+        $this->selectedUnitId = auth()->user()?->getEffectiveUnitId();
+    }
+
+    public function setLabUnit($unitId): mixed
+    {
+        $unitId = (int) $unitId;
+        session(['lab_selected_unit_id' => $unitId]);
+        $this->selectedUnitId = $unitId;
+
+        // Reload current page to refresh data according to selected unit
+        return redirect(request()->header('Referer', route('filament.kepalab.pages.dashboard')));
     }
 
     public function switchRole(string $role): mixed
@@ -34,3 +46,4 @@ class LabRoleSwitcher extends Component
         return view('livewire.lab-role-switcher');
     }
 }
+

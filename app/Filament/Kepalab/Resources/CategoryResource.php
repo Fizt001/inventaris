@@ -29,14 +29,14 @@ class CategoryResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('unit_id', auth()->user()?->unit_id);
+            ->where('unit_id', auth()->user()?->getEffectiveUnitId());
     }
 
     public static function form(Form $form): Form
     {
         return $form->schema([
             Forms\Components\Hidden::make('unit_id')
-                ->default(fn () => auth()->user()?->unit_id),
+                ->default(fn () => auth()->user()?->getEffectiveUnitId()),
 
             Forms\Components\TextInput::make('nama')
                 ->label('Nama Kelompok / Kategori')

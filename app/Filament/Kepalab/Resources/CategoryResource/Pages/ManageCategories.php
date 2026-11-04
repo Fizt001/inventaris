@@ -18,7 +18,7 @@ class ManageCategories extends ManageRecords
                 ->icon('heroicon-o-plus')
                 ->modalWidth('md')
                 ->mutateFormDataUsing(function (array $data): array {
-                    $data['unit_id'] = auth()->user()?->unit_id;
+                    $data['unit_id'] = auth()->user()?->getEffectiveUnitId();
                     return $data;
                 }),
         ];

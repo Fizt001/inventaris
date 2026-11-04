@@ -70,7 +70,7 @@ class PeminjamanLabPage extends InlineManagePage
                         Forms\Components\Select::make('item_id')
                             ->label('Pilih Alat / Bahan')
                             ->options(function () {
-                                $unitId = auth()->user()?->unit_id;
+                                $unitId = auth()->user()?->getEffectiveUnitId();
 
                                 return Item::where('unit_id', $unitId)
                                     ->where('aktif', true)
@@ -128,7 +128,7 @@ class PeminjamanLabPage extends InlineManagePage
     {
         $item = Item::with('stock')->findOrFail($data['item_id']);
         $qty = (int) $data['qty'];
-        $unitId = auth()->user()?->unit_id;
+        $unitId = auth()->user()?->getEffectiveUnitId();
         $stock = $item->stock;
 
         $stokTersedia = $stock?->stok_tersedia ?? 0;
@@ -200,7 +200,7 @@ class PeminjamanLabPage extends InlineManagePage
         return $table
             ->query(
                 LoanRequest::query()
-                    ->where('unit_id', auth()->user()?->unit_id)
+                    ->where('unit_id', auth()->user()?->getEffectiveUnitId())
                     ->with(['items.item', 'user'])
                     ->latest()
             )

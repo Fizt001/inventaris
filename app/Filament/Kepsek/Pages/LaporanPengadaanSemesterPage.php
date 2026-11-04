@@ -120,3 +120,4 @@ class LaporanPengadaanSemesterPage extends Page implements HasTable
             ]);
     }
 }
+

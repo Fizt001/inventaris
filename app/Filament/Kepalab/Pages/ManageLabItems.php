@@ -36,22 +36,22 @@ class ManageLabItems extends Page implements HasTable
 
     public function getTotalItemCount(): int
     {
-        return Item::where('unit_id', auth()->user()?->unit_id)->where('aktif', true)->count();
+        return Item::where('unit_id', auth()->user()?->getEffectiveUnitId())->where('aktif', true)->count();
     }
 
     public function getTotalStokTersedia(): int
     {
-        return (int) Stock::where('unit_id', auth()->user()?->unit_id)->sum('stok_tersedia');
+        return (int) Stock::where('unit_id', auth()->user()?->getEffectiveUnitId())->sum('stok_tersedia');
     }
 
     public function getTotalStokDipinjam(): int
     {
-        return (int) Stock::where('unit_id', auth()->user()?->unit_id)->sum('stok_dipinjam');
+        return (int) Stock::where('unit_id', auth()->user()?->getEffectiveUnitId())->sum('stok_dipinjam');
     }
 
     public function getStokMenipisCount(): int
     {
-        return Item::where('unit_id', auth()->user()?->unit_id)
+        return Item::where('unit_id', auth()->user()?->getEffectiveUnitId())
             ->where('aktif', true)
             ->whereHas('stock', fn ($q) => $q->where('stok_tersedia', '<=', 2))
             ->count();
@@ -85,7 +85,7 @@ class ManageLabItems extends Page implements HasTable
         return $table
             ->query(
                 Item::query()
-                    ->where('unit_id', auth()->user()?->unit_id)
+                    ->where('unit_id', auth()->user()?->getEffectiveUnitId())
                     ->with(['room', 'roomArea', 'storage', 'category', 'stock'])
             )
             ->defaultGroup(
@@ -168,14 +168,14 @@ class ManageLabItems extends Page implements HasTable
             ->filters([
                 Tables\Filters\SelectFilter::make('unit_room_id')
                     ->label('Ruang / Lab')
-                    ->options(fn () => UnitRoom::where('unit_id', auth()->user()?->unit_id)
+                    ->options(fn () => UnitRoom::where('unit_id', auth()->user()?->getEffectiveUnitId())
                         ->where('aktif', true)
                         ->pluck('nama', 'id')
                     ),
 
                 Tables\Filters\SelectFilter::make('category_id')
                     ->label('Kategori')
-                    ->options(fn () => Category::where('unit_id', auth()->user()?->unit_id)
+                    ->options(fn () => Category::where('unit_id', auth()->user()?->getEffectiveUnitId())
                         ->pluck('nama', 'id')
                     ),
 
@@ -195,12 +195,12 @@ class ManageLabItems extends Page implements HasTable
 
                             Forms\Components\Select::make('category_id')
                                 ->label('Kategori')
-                                ->options(fn () => Category::where('unit_id', auth()->user()?->unit_id)->pluck('nama', 'id'))
+                                ->options(fn () => Category::where('unit_id', auth()->user()?->getEffectiveUnitId())->pluck('nama', 'id'))
                                 ->required(),
 
                             Forms\Components\Select::make('unit_room_id')
                                 ->label('Ruang / Lab')
-                                ->options(fn () => UnitRoom::where('unit_id', auth()->user()?->unit_id)->where('aktif', true)->pluck('nama', 'id'))
+                                ->options(fn () => UnitRoom::where('unit_id', auth()->user()?->getEffectiveUnitId())->where('aktif', true)->pluck('nama', 'id'))
                                 ->required()
                                 ->reactive(),
 

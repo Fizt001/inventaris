@@ -41,7 +41,7 @@ class PengadaanBarangPage extends Page implements HasTable
         return $table
             ->query(
                 BudgetProposal::query()
-                    ->where('unit_id', auth()->user()?->unit_id)
+                    ->where('unit_id', auth()->user()?->getEffectiveUnitId())
                     ->with(['items'])
                     ->latest()
             )
@@ -140,7 +140,7 @@ class PengadaanBarangPage extends Page implements HasTable
                             ->collapsible(),
                     ])
                     ->action(function (array $data): void {
-                        $unitId = auth()->user()?->unit_id;
+                        $unitId = auth()->user()?->getEffectiveUnitId();
                         $prefix = 'PB-' . date('Ym') . '-';
                         $kode = $prefix . Str::upper(Str::random(4));
 
@@ -301,3 +301,4 @@ class PengadaanBarangPage extends Page implements HasTable
             ]);
     }
 }
+

@@ -65,7 +65,7 @@ class DaftarBarangPage extends InlineManagePage
 
     protected function handleCreate(array $data): void
     {
-        $unitId = auth()->user()?->unit_id;
+        $unitId = auth()->user()?->getEffectiveUnitId() ?? \App\Models\Unit::value('id');
         $kode   = strtoupper(trim($data['kode']));
         $nama   = trim($data['nama']);
 
@@ -98,7 +98,7 @@ class DaftarBarangPage extends InlineManagePage
 
     public function table(Table $table): Table
     {
-        $unitId = auth()->user()?->unit_id;
+        $unitId = auth()->user()?->getEffectiveUnitId() ?? \App\Models\Unit::value('id');
 
         return $table
             ->query(
@@ -147,11 +147,11 @@ class DaftarBarangPage extends InlineManagePage
 
                 Tables\Filters\SelectFilter::make('category_id')
                     ->label('Kategori')
-                    ->options(fn () => Category::where('unit_id', $unitId)->pluck('nama', 'id')),
+                    ->options(fn () => Category::where('unit_id', auth()->user()?->getEffectiveUnitId())->pluck('nama', 'id')),
 
                 Tables\Filters\SelectFilter::make('unit_room_id')
                     ->label('Ruang / Lab')
-                    ->options(fn () => UnitRoom::where('unit_id', $unitId)->where('aktif', true)->pluck('nama', 'id')),
+                    ->options(fn () => UnitRoom::where('unit_id', auth()->user()?->getEffectiveUnitId())->where('aktif', true)->pluck('nama', 'id')),
 
                 Tables\Filters\SelectFilter::make('tipe_barang')
                     ->label('Tipe')
@@ -247,7 +247,7 @@ class DaftarBarangPage extends InlineManagePage
 
                             Forms\Components\Select::make('category_id')
                                 ->label('Kategori / Kelompok')
-                                ->options(fn () => Category::where('unit_id', $unitId)->pluck('nama', 'id'))
+                                ->options(fn () => Category::where('unit_id', auth()->user()?->getEffectiveUnitId())->pluck('nama', 'id'))
                                 ->nullable()
                                 ->searchable(),
 
@@ -258,7 +258,7 @@ class DaftarBarangPage extends InlineManagePage
 
                             Forms\Components\Select::make('unit_room_id')
                                 ->label('Ruang / Lab')
-                                ->options(fn () => UnitRoom::where('unit_id', $unitId)->where('aktif', true)->pluck('nama', 'id'))
+                                ->options(fn () => UnitRoom::where('unit_id', auth()->user()?->getEffectiveUnitId())->where('aktif', true)->pluck('nama', 'id'))
                                 ->nullable()
                                 ->reactive(),
 
@@ -305,7 +305,7 @@ class DaftarBarangPage extends InlineManagePage
                             Forms\Components\Grid::make(2)->schema([
                                 Forms\Components\Select::make('category_id')
                                     ->label('Kategori / Kelompok')
-                                    ->options(fn () => Category::where('unit_id', $unitId)->pluck('nama', 'id'))
+                                    ->options(fn () => Category::where('unit_id', auth()->user()?->getEffectiveUnitId())->pluck('nama', 'id'))
                                     ->searchable()
                                     ->required()
                                     ->helperText('Pilih kategori untuk barang yang diceklis.')
@@ -325,7 +325,7 @@ class DaftarBarangPage extends InlineManagePage
 
                                 Forms\Components\Select::make('unit_room_id')
                                     ->label('Ruang / Lab')
-                                    ->options(fn () => UnitRoom::where('unit_id', $unitId)->where('aktif', true)->pluck('nama', 'id'))
+                                    ->options(fn () => UnitRoom::where('unit_id', auth()->user()?->getEffectiveUnitId())->where('aktif', true)->pluck('nama', 'id'))
                                     ->nullable()
                                     ->reactive()
                                     ->afterStateUpdated(fn (callable $set) => $set('room_area_id', null))

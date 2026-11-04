@@ -50,4 +50,23 @@
             <span style="font-weight: 600; color: #0f766e;">Mode Kepala Lab:</span> Buat daftar master barang & usulan pengadaan lab.
         @endif
     </div>
+
+    @if(auth()->user()?->hasRole('super_admin') || !auth()->user()?->unit_id)
+        <div style="margin-top: 10px; padding: 6px 8px; background: rgba(59, 130, 246, 0.08); border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.2);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px;">
+                <span style="font-size: 9px; font-weight: 700; color: #2563eb; text-transform: uppercase;">Pilih Jurusan (Super Admin):</span>
+            </div>
+            <select
+                wire:change="setLabUnit($event.target.value)"
+                style="width: 100%; font-size: 11px; font-weight: 600; padding: 4px 6px; border-radius: 6px; border: 1px solid #93c5fd; background: #ffffff; color: #1e3a8a;"
+                class="dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
+            >
+                @foreach(\App\Models\Unit::where('tipe', 'jurusan')->orderBy('urutan')->get() as $u)
+                    <option value="{{ $u->id }}" {{ $selectedUnitId == $u->id ? 'selected' : '' }}>
+                        {{ $u->nama }} ({{ $u->kode }})
+                    </option>
+                @endforeach
+            </select>
+        </div>
+    @endif
 </div>

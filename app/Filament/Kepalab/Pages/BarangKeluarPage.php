@@ -88,7 +88,7 @@ class BarangKeluarPage extends Page
      */
     public function loadActiveDates(): void
     {
-        $unitId    = auth()->user()?->unit_id;
+        $unitId    = auth()->user()?->getEffectiveUnitId();
         $startDate = Carbon::createFromDate($this->selectedYear, $this->selectedMonth, 1)->startOfMonth();
         $endDate   = Carbon::createFromDate($this->selectedYear, $this->selectedMonth, 1)->endOfMonth();
 
@@ -285,7 +285,7 @@ class BarangKeluarPage extends Page
 
         $sourceDate = $this->dateToDelete;
         $targetDate = $this->targetDateToMove;
-        $unitId     = auth()->user()?->unit_id;
+        $unitId     = auth()->user()?->getEffectiveUnitId();
         $itemIds    = Item::where('unit_id', $unitId)->pluck('id')->toArray();
         $movedCount = 0;
 
@@ -351,7 +351,7 @@ class BarangKeluarPage extends Page
         }
 
         $targetDate   = $this->dateToDelete;
-        $unitId       = auth()->user()?->unit_id;
+        $unitId       = auth()->user()?->getEffectiveUnitId();
         $itemIds      = Item::where('unit_id', $unitId)->pluck('id')->toArray();
         $deletedCount = 0;
 
@@ -395,7 +395,7 @@ class BarangKeluarPage extends Page
      */
     public function getMatrixItemsProperty(): BaseCollection
     {
-        $unitId = auth()->user()?->unit_id;
+        $unitId = auth()->user()?->getEffectiveUnitId();
 
         $query = Item::query()
             ->where('unit_id', $unitId)
@@ -419,7 +419,7 @@ class BarangKeluarPage extends Page
 
     public function getAvailableCategoriesProperty(): BaseCollection
     {
-        $unitId = auth()->user()?->unit_id;
+        $unitId = auth()->user()?->getEffectiveUnitId();
         return Category::where('unit_id', $unitId)->orderBy('nama')->get();
     }
 
@@ -550,7 +550,7 @@ class BarangKeluarPage extends Page
      */
     public function updateOutgoingQty(int $itemId, string $date, mixed $newQty): void
     {
-        $unitId = auth()->user()?->unit_id;
+        $unitId = auth()->user()?->getEffectiveUnitId();
         $userId = auth()->id();
         $item   = Item::where('unit_id', $unitId)->find($itemId);
 
@@ -672,7 +672,7 @@ class BarangKeluarPage extends Page
      */
     public function openDetailModal(int $itemId): void
     {
-        $unitId = auth()->user()?->unit_id;
+        $unitId = auth()->user()?->getEffectiveUnitId();
         $this->detailItem = Item::where('unit_id', $unitId)->with(['category', 'room', 'stock'])->find($itemId);
 
         if (! $this->detailItem) {

@@ -67,3 +67,4 @@
         {{ $this->table }}
     </div>
 </x-filament-panels::page>
+

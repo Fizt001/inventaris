@@ -37,6 +37,35 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * Mendapatkan unit_id aktif.
+     * Jika pengguna memiliki unit_id langsung (Kepala Lab), gunakan unit_id tersebut.
+     * Jika super_admin/admin yang masuk, gunakan unit yang dipilih di sesi atau jurusan pertama.
+     */
+    public function getEffectiveUnitId(): ?int
+    {
+        if ($this->unit_id) {
+            return (int) $this->unit_id;
+        }
+
+        if (session()->has('lab_selected_unit_id')) {
+            $unitId = (int) session('lab_selected_unit_id');
+            if (Unit::where('id', $unitId)->exists()) {
+                return $unitId;
+            }
+        }
+
+        $defaultJurusan = Unit::where('tipe', 'jurusan')->orderBy('urutan')->value('id')
+            ?? Unit::orderBy('urutan')->value('id');
+
+        if ($defaultJurusan) {
+            session(['lab_selected_unit_id' => $defaultJurusan]);
+            return (int) $defaultJurusan;
+        }
+
+        return null;
+    }
+
+    /**
      * Determine which Filament panels the user can access.
      * Role-based panel access control.
      */
