@@ -94,27 +94,8 @@
         {{-- ═══ BARISAN TAB KATEGORI DI ATAS TABEL (PILIH KATEGORI) ═══ --}}
         @php
             $categories = $this->availableCategories;
-            $totalCount = $this->totalItemsCount;
         @endphp
         <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
-            {{-- Tab: Semua Kategori --}}
-            @php $isAllActive = is_null($selectedCategoryId); @endphp
-            <button
-                type="button"
-                wire:click="setCategory(null)"
-                style="{{ $isAllActive ? 'background-color: #e11d48 !important; color: #ffffff !important; border-color: #e11d48 !important;' : 'background-color: #ffffff; color: #1e293b; border-color: #cbd5e1;' }}"
-                class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer whitespace-nowrap border shadow-xs hover:opacity-90"
-            >
-                <x-filament::icon icon="heroicon-m-squares-2x2" class="w-4 h-4" style="{{ $isAllActive ? 'color: #ffffff !important;' : 'color: #64748b;' }}" />
-                <span style="{{ $isAllActive ? 'color: #ffffff !important;' : 'color: #1e293b;' }}">Semua Kategori</span>
-                <span
-                    style="{{ $isAllActive ? 'background-color: rgba(255, 255, 255, 0.25) !important; color: #ffffff !important;' : 'background-color: #f1f5f9; color: #334155;' }}"
-                    class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold"
-                >
-                    {{ $totalCount }}
-                </span>
-            </button>
-
             {{-- Tabs Masing-Masing Kategori --}}
             @foreach ($categories as $category)
                 @php
@@ -274,14 +255,7 @@
 
                                 {{-- 2. Nama Barang / Komponen --}}
                                 <td class="min-w-[380px] lg:min-w-[460px] px-4 py-2 font-bold text-gray-950 dark:text-white border-r border-gray-200 dark:border-gray-800 text-[13px]">
-                                    <div class="flex items-center justify-between gap-2">
-                                        <span>{{ $item->nama }}</span>
-                                        @if(is_null($selectedCategoryId) && $item->category)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
-                                                {{ $item->category->nama }}
-                                            </span>
-                                        @endif
-                                    </div>
+                                    {{ $item->nama }}
                                 </td>
 
                                 {{-- 3. KOLOM TANGGAL KELUAR DINAMIS (DENGAN S = ... DI ATAS INPUT) --}}
@@ -379,11 +353,8 @@
             {{-- ═══ FOOTER STATISTIK ═══ --}}
             <div class="flex flex-wrap items-center justify-between gap-4 border-t border-gray-200 bg-gray-50/80 px-4 py-3 dark:border-gray-800 dark:bg-gray-900/60">
                 <div class="text-xs text-gray-600 dark:text-gray-400">
-                    Menampilkan <strong class="text-gray-900 dark:text-white">{{ $this->matrixItems->count() }}</strong> barang
-                    @if($selectedCategoryId)
-                        <span class="text-rose-600 dark:text-rose-400 font-bold">(Kategori: {{ optional($this->availableCategories->firstWhere('id', $selectedCategoryId))->nama }})</span>
-                    @endif
-                </div>
+                    Menampilkan <strong class="text-gray-900 dark:text-white">{{ $this->matrixItems->count() }}</strong> barang dalam kategori
+                    <strong class="text-rose-600 dark:text-rose-400">{{ optional($this->availableCategories->firstWhere('id', $selectedCategoryId))->nama }}</strong>
                 </div>
 
                 <div class="flex items-center gap-4 text-xs">

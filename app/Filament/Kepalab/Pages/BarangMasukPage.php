@@ -84,6 +84,12 @@ class BarangMasukPage extends Page
         $this->selectedYear  = (int) now()->year;
         $this->selectedMonth = (int) now()->month;
 
+        $unitId = auth()->user()?->getEffectiveUnitId();
+        $firstCat = Category::where('unit_id', $unitId)->orderBy('nama')->first();
+        if ($firstCat) {
+            $this->selectedCategoryId = $firstCat->id;
+        }
+
         $this->loadActiveDates();
     }
 
@@ -439,6 +445,11 @@ class BarangMasukPage extends Page
     public function getMatrixItemsProperty(): BaseCollection
     {
         $unitId = auth()->user()?->getEffectiveUnitId();
+
+        if (empty($this->selectedCategoryId)) {
+            $firstCat = Category::where('unit_id', $unitId)->orderBy('nama')->first();
+            $this->selectedCategoryId = $firstCat?->id;
+        }
 
         $query = Item::query()
             ->where('unit_id', $unitId)
