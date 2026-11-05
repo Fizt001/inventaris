@@ -70,7 +70,7 @@ class DaftarBarangPage extends InlineManagePage
 
     public function getCreateHeading(): string
     {
-        return 'Pendaftaran Cepat Kode & Nama Barang / Komponen';
+        return 'Pendaftaran Cepat Barang Baru';
     }
 
     public function form(Form $form): Form
@@ -84,8 +84,7 @@ class DaftarBarangPage extends InlineManagePage
                         ->unique('items', 'kode')
                         ->maxLength(50)
                         ->autofocus()
-                        ->placeholder('Contoh: RES-10K, SDR-01, CAP-100UF, OSC-01')
-                        ->helperText('Kode unik barang sesuai format lab (tekan Enter untuk langsung simpan).')
+                        ->placeholder('Contoh: RES-10K, SDR-01, OSC-01')
                         ->extraInputAttributes(['style' => 'text-transform:uppercase'])
                         ->columnSpan(['default' => 12, 'sm' => 4, 'lg' => 3]),
 
@@ -93,8 +92,7 @@ class DaftarBarangPage extends InlineManagePage
                         ->label('Nama Barang / Komponen')
                         ->required()
                         ->maxLength(255)
-                        ->placeholder('Contoh: Resistor 10K Ohm 1/4W, Solder Listrik 40W, Osiloskop Digital')
-                        ->helperText('Kategori dan lokasi simpan lab dilengkapi lewat tombol "Lengkapi Data" di tabel.')
+                        ->placeholder('Contoh: Resistor 10K Ohm, Solder Listrik 40W, Osiloskop Digital')
                         ->columnSpan(['default' => 12, 'sm' => 8, 'lg' => 9]),
                 ]),
             ])
