@@ -1,4 +1,13 @@
 <x-filament-panels::page>
+    <style>
+        .outgoing-input::placeholder {
+            color: #94a3b8 !important;
+            opacity: 0.75 !important;
+            font-weight: 600 !important;
+            font-size: 10px !important;
+            letter-spacing: -0.2px;
+        }
+    </style>
     <div class="space-y-4">
         {{-- ═══ TOP TOOLBAR: BULAN/TAHUN DI KIRI, TAMBAH TANGGAL KELUAR & CARI DI KANAN ═══ --}}
         <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
@@ -154,7 +163,7 @@
                                 @endphp
                                 <th
                                     scope="col"
-                                    class="w-[48px] min-w-[48px] max-w-[50px] px-0.5 py-1 text-center border-r border-gray-300 dark:border-gray-700"
+                                    class="w-[58px] min-w-[58px] max-w-[62px] px-0.5 py-1 text-center border-r border-gray-300 dark:border-gray-700"
                                     style="{{ $isToday ? 'background-color: #9f1239 !important; color: #ffffff !important;' : 'background-color: #f1f5f9 !important; color: #0f172a !important;' }}"
                                 >
                                     <div class="flex items-center justify-center relative py-0.5">
@@ -267,26 +276,25 @@
                                         $maxLimit = $stokTersedia;
                                         $isZeroStock = ($stokTersedia <= 0 && empty($val));
                                     @endphp
-                                    <td class="w-[48px] min-w-[48px] max-w-[50px] p-0.5 text-center border-r border-gray-200 dark:border-gray-800 {{ $isToday ? 'bg-rose-50/40 dark:bg-rose-950/20' : '' }}">
-                                        {{-- Kotak Input Pengeluaran (Placeholder Menampilkan Sisa Stok Tersedia) --}}
+                                    <td class="w-[58px] min-w-[58px] max-w-[62px] p-0.5 text-center border-r border-gray-200 dark:border-gray-800 {{ $isToday ? 'bg-rose-50/40 dark:bg-rose-950/20' : '' }}">
+                                        {{-- Kotak Input Pengeluaran (Placeholder Abu-abu 'S = 500') --}}
                                         <input
                                             wire:key="outgoing-cell-{{ $item->id }}-{{ $date }}-{{ $val }}-{{ $stokTersedia }}"
-                                            type="number"
-                                            min="0"
-                                            max="{{ $maxLimit }}"
-                                            step="1"
+                                            type="text"
+                                            inputmode="numeric"
                                             value="{{ $val ?: '' }}"
-                                            placeholder="{{ $stokTersedia }}"
+                                            placeholder="S = {{ $stokTersedia }}"
+                                            data-max="{{ $maxLimit }}"
                                             @if($isZeroStock) disabled @endif
-                                            oninput="let m = parseInt(this.max) || 0; let v = parseInt(this.value); if (isNaN(v) || v < 0) { this.value = ''; } else if (v > m) { this.value = m; }"
-                                            onchange="let m = parseInt(this.max) || 0; let v = parseInt(this.value); if (isNaN(v) || v < 0) { this.value = ''; } else if (v > m) { this.value = m; }"
-                                            onkeydown="if (event.key === 'ArrowUp' && (parseInt(this.value) || 0) >= (parseInt(this.max) || 0)) { event.preventDefault(); this.value = this.max; }"
-                                            onpaste="setTimeout(() => { let m = parseInt(this.max) || 0; let v = parseInt(this.value); if (v > m) { this.value = m; } }, 10)"
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, ''); let m = parseInt(this.dataset.max) || 0; let v = parseInt(this.value); if (!isNaN(v) && v > m) { this.value = m; }"
+                                            onchange="this.value = this.value.replace(/[^0-9]/g, ''); let m = parseInt(this.dataset.max) || 0; let v = parseInt(this.value); if (!isNaN(v) && v > m) { this.value = m; }"
+                                            onkeydown="if(event.key === 'ArrowUp') { let m = parseInt(this.dataset.max) || 0; let v = (parseInt(this.value) || 0) + 1; if(v <= m) this.value = v; else this.value = m; event.preventDefault(); } if(event.key === 'ArrowDown') { let v = (parseInt(this.value) || 0) - 1; if(v >= 0) this.value = v; else this.value = 0; event.preventDefault(); }"
+                                            onpaste="setTimeout(() => { this.value = this.value.replace(/[^0-9]/g, ''); let m = parseInt(this.dataset.max) || 0; let v = parseInt(this.value); if (!isNaN(v) && v > m) { this.value = m; } }, 10)"
                                             wire:change="updateOutgoingQty({{ $item->id }}, '{{ $date }}', $event.target.value)"
                                             wire:loading.class="opacity-40 pointer-events-none"
                                             wire:target="updateOutgoingQty({{ $item->id }}, '{{ $date }}')"
                                             style="{{ $isZeroStock ? 'background-color: #f1f5f9; border: 1px solid #e2e8f0; color: #94a3b8; cursor: not-allowed;' : ($val > 0 ? 'background-color: #fee2e2 !important; border: 1.5px solid #ef4444 !important; color: #991b1b !important; font-weight: 900;' : 'background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; font-weight: 700;') }}"
-                                            class="w-full h-7 text-center text-xs rounded transition-all focus:ring-1 focus:ring-rose-500 focus:outline-hidden p-0"
+                                            class="outgoing-input w-full h-7 text-center text-xs rounded transition-all focus:ring-1 focus:ring-rose-500 focus:outline-hidden p-0 font-bold"
                                             title="{{ $isZeroStock ? 'Stok kosong (0), tidak dapat melakukan pengeluaran' : 'Stok tersedia: ' . $stokTersedia . ' ' . $item->satuan . ' (Maksimal: ' . $maxLimit . ')' }}"
                                         />
                                     </td>
