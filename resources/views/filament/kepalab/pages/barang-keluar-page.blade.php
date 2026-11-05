@@ -243,8 +243,9 @@
                         @forelse ($itemsList as $item)
                             @php
                                 $totalKeluarBulanIni = $itemTotals[$item->id] ?? 0;
+                                $sisaStok = $item->stock?->stok_tersedia ?? 0;
                             @endphp
-                            <tr class="hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors">
+                            <tr wire:key="outgoing-item-row-{{ $item->id }}" class="hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors">
                                 {{-- 0. Checkbox per Barang --}}
                                 <td class="w-[38px] min-w-[38px] px-2 py-2 text-center border-r border-gray-200 dark:border-gray-800">
                                     <input
@@ -311,17 +312,14 @@
                                 >
                                     <div style="width: 270px; min-width: 270px; display: flex; flex-direction: row; align-items: center;" class="divide-x divide-slate-200 dark:divide-gray-700 py-1.5">
                                         {{-- 1. Keluar Bulan Ini --}}
-                                        <div style="width: 100px; min-width: 100px; flex-shrink: 0;" class="flex items-center justify-center px-1">
+                                        <div wire:key="outgoing-keluar-box-{{ $item->id }}-{{ $totalKeluarBulanIni }}" style="width: 100px; min-width: 100px; flex-shrink: 0;" class="flex items-center justify-center px-1">
                                             <span class="inline-flex items-center justify-center min-w-[34px] rounded px-1.5 py-0.5 text-xs font-black {{ $totalKeluarBulanIni > 0 ? 'bg-rose-100 text-rose-900 dark:bg-rose-950/80 dark:text-rose-200 border border-rose-200 dark:border-rose-800' : 'text-gray-400' }}">
                                                 {{ $totalKeluarBulanIni > 0 ? "-{$totalKeluarBulanIni}" : '0' }}
                                             </span>
                                         </div>
 
                                         {{-- 2. Sisa (Stok Fisik Lab) --}}
-                                        <div style="width: 85px; min-width: 85px; flex-shrink: 0;" class="flex items-center justify-center px-1">
-                                            @php
-                                                $sisaStok = $item->stock?->stok_tersedia ?? 0;
-                                            @endphp
+                                        <div wire:key="outgoing-sisa-box-{{ $item->id }}-{{ $sisaStok }}" style="width: 85px; min-width: 85px; flex-shrink: 0;" class="flex items-center justify-center px-1">
                                             <span class="inline-flex items-center justify-center gap-0.5 min-w-[36px] rounded px-1.5 py-0.5 text-xs font-black {{ $sisaStok > 0 ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' : 'bg-red-50 text-red-700 dark:bg-red-950/70 dark:text-red-300 border border-red-200 dark:border-red-800' }}">
                                                 {{ $sisaStok }}
                                                 <span class="text-[9px] font-semibold opacity-70">{{ $item->satuan }}</span>

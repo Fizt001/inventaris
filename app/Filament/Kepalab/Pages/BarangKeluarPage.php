@@ -345,6 +345,12 @@ class BarangKeluarPage extends Page
         $this->dateToDelete = null;
         $this->targetDateToMove = null;
         $this->showDeleteConfirmModal = false;
+
+        unset($this->matrixItems);
+        unset($this->groupedMatrixItems);
+        unset($this->runningStockData);
+        unset($this->matrixData);
+        unset($this->itemMonthTotals);
     }
 
     /**
@@ -394,6 +400,12 @@ class BarangKeluarPage extends Page
         $this->dateToDelete = null;
         $this->targetDateToMove = null;
         $this->showDeleteConfirmModal = false;
+
+        unset($this->matrixItems);
+        unset($this->groupedMatrixItems);
+        unset($this->runningStockData);
+        unset($this->matrixData);
+        unset($this->itemMonthTotals);
     }
 
     /**
@@ -687,6 +699,8 @@ class BarangKeluarPage extends Page
                 ->send();
         }
 
+        unset($this->matrixItems);
+        unset($this->groupedMatrixItems);
         unset($this->runningStockData);
         unset($this->matrixData);
         unset($this->itemMonthTotals);

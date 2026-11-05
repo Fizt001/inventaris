@@ -358,6 +358,11 @@ class BarangMasukPage extends Page
         $this->dateToDelete = null;
         $this->targetDateToMove = null;
         $this->showDeleteConfirmModal = false;
+
+        unset($this->matrixItems);
+        unset($this->groupedMatrixItems);
+        unset($this->matrixData);
+        unset($this->itemMonthTotals);
     }
 
     /**
@@ -429,6 +434,11 @@ class BarangMasukPage extends Page
         $this->dateToDelete = null;
         $this->targetDateToMove = null;
         $this->showDeleteConfirmModal = false;
+
+        unset($this->matrixItems);
+        unset($this->groupedMatrixItems);
+        unset($this->matrixData);
+        unset($this->itemMonthTotals);
     }
 
     /**
@@ -667,6 +677,11 @@ class BarangMasukPage extends Page
                 ->success()
                 ->send();
         }
+
+        unset($this->matrixItems);
+        unset($this->groupedMatrixItems);
+        unset($this->matrixData);
+        unset($this->itemMonthTotals);
     }
 
     /**

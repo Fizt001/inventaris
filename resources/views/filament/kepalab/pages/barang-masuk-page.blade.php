@@ -227,7 +227,7 @@
                             @php
                                 $totalBulanIni = $itemTotals[$item->id] ?? 0;
                             @endphp
-                            <tr class="hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors">
+                            <tr wire:key="incoming-item-row-{{ $item->id }}" class="hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors">
                                 {{-- 0. Checkbox per Barang (Pola Daftarkan Barang) --}}
                                 <td class="w-[38px] min-w-[38px] px-2 py-2 text-center border-r border-gray-200 dark:border-gray-800">
                                     <input
@@ -258,6 +258,7 @@
                                     @endphp
                                     <td class="w-[48px] min-w-[48px] max-w-[50px] p-0.5 text-center border-r border-gray-200 dark:border-gray-800 {{ $isToday ? 'bg-indigo-50/40 dark:bg-indigo-950/20' : '' }}">
                                         <input
+                                            wire:key="incoming-cell-{{ $item->id }}-{{ $date }}-{{ $val }}"
                                             type="number"
                                             min="0"
                                             step="1"
@@ -277,7 +278,7 @@
                                 @endforelse
 
                                 {{-- 4. Masuk Bulan Ini --}}
-                                <td class="w-[110px] min-w-[110px] px-2 py-2 text-center border-r border-gray-200 dark:border-gray-800 bg-indigo-50/40 dark:bg-indigo-950/30 whitespace-nowrap">
+                                <td wire:key="incoming-total-box-{{ $item->id }}-{{ $totalBulanIni }}" class="w-[110px] min-w-[110px] px-2 py-2 text-center border-r border-gray-200 dark:border-gray-800 bg-indigo-50/40 dark:bg-indigo-950/30 whitespace-nowrap">
                                     <span class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-black {{ $totalBulanIni > 0 ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-900/70 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-800' : 'text-gray-400' }}">
                                         {{ $totalBulanIni > 0 ? "+{$totalBulanIni}" : '0' }}
                                     </span>
