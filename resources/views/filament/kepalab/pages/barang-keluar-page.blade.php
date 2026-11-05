@@ -262,9 +262,10 @@
                                 @forelse ($activeDates as $date)
                                     @php
                                         $val = $matrixData[$item->id][$date] ?? null;
-                                        $stokTersedia = $runningStocks[$item->id][$date] ?? 0;
+                                        $stokTersedia = (int) ($runningStocks[$item->id][$date] ?? 0);
                                         $isToday = $date === now()->toDateString();
-                                        $maxInput = $stokTersedia + ($val ?: 0);
+                                        $maxLimit = $stokTersedia;
+                                        $isZeroStock = ($stokTersedia <= 0 && empty($val));
                                     @endphp
                                     <td class="w-[56px] min-w-[56px] max-w-[60px] p-1 text-center border-r border-gray-200 dark:border-gray-800 {{ $isToday ? 'bg-rose-50/40 dark:bg-rose-950/20' : '' }}">
                                         {{-- Indikator S = [Stok per tanggal hari itu] --}}
@@ -275,20 +276,26 @@
                                             <span class="text-slate-400 font-bold">S=</span><span class="{{ $stokTersedia <= 0 ? 'text-red-500 font-black' : 'text-slate-700 dark:text-slate-200 font-black' }}">{{ $stokTersedia }}</span>
                                         </div>
 
-                                        {{-- Kotak Input Pengeluaran --}}
+                                        {{-- Kotak Input Pengeluaran (Dibatasi Langsung Maksimal Nilai S) --}}
                                         <input
+                                            wire:key="outgoing-cell-{{ $item->id }}-{{ $date }}-{{ $val }}-{{ $stokTersedia }}"
                                             type="number"
                                             min="0"
-                                            max="{{ $maxInput }}"
+                                            max="{{ $maxLimit }}"
                                             step="1"
                                             value="{{ $val ?: '' }}"
                                             placeholder="0"
+                                            @if($isZeroStock) disabled @endif
+                                            oninput="let m = parseInt(this.max) || 0; let v = parseInt(this.value); if (isNaN(v) || v < 0) { this.value = ''; } else if (v > m) { this.value = m; }"
+                                            onchange="let m = parseInt(this.max) || 0; let v = parseInt(this.value); if (isNaN(v) || v < 0) { this.value = ''; } else if (v > m) { this.value = m; }"
+                                            onkeydown="if (event.key === 'ArrowUp' && (parseInt(this.value) || 0) >= (parseInt(this.max) || 0)) { event.preventDefault(); this.value = this.max; }"
+                                            onpaste="setTimeout(() => { let m = parseInt(this.max) || 0; let v = parseInt(this.value); if (v > m) { this.value = m; } }, 10)"
                                             wire:change="updateOutgoingQty({{ $item->id }}, '{{ $date }}', $event.target.value)"
                                             wire:loading.class="opacity-40 pointer-events-none"
                                             wire:target="updateOutgoingQty({{ $item->id }}, '{{ $date }}')"
-                                            style="{{ $val > 0 ? 'background-color: #fee2e2 !important; border: 1.5px solid #ef4444 !important; color: #991b1b !important; font-weight: 900;' : 'background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; font-weight: 700;' }}"
+                                            style="{{ $isZeroStock ? 'background-color: #f1f5f9; border: 1px solid #e2e8f0; color: #94a3b8; cursor: not-allowed;' : ($val > 0 ? 'background-color: #fee2e2 !important; border: 1.5px solid #ef4444 !important; color: #991b1b !important; font-weight: 900;' : 'background-color: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; font-weight: 700;') }}"
                                             class="w-full h-7 text-center text-xs rounded transition-all focus:ring-1 focus:ring-rose-500 focus:outline-hidden p-0"
-                                            title="Input jumlah keluar tgl {{ \Carbon\Carbon::parse($date)->format('d/m') }} (Tersedia: {{ $stokTersedia }})"
+                                            title="{{ $isZeroStock ? 'Stok kosong (0), tidak dapat melakukan pengeluaran' : 'Input jumlah keluar tgl ' . \Carbon\Carbon::parse($date)->format('d/m') . ' (Maksimal: ' . $maxLimit . ')' }}"
                                         />
                                     </td>
                                 @empty
