@@ -500,27 +500,64 @@ class BarangKeluarPage extends Page
     }
 
     /**
-     * ═══ LOGIKA STOK TERSEDIA PADA MASING-MASING SEL TANGGAL (S = ...) ═══
+     * ═══ LOGIKA AKUMULASI STOK BERJALAN PER TANGGAL (S = ...) ═══
      *
-     * Kapasitas pengeluaran maksimal untuk setiap sel (barang, tanggal):
-     * = Stok fisik lab saat ini (stocks.stok_tersedia) + Jumlah yang sudah dikeluarkan pada sel tersebut.
-     *
-     * Hal ini menjamin:
-     * 1. Seluruh barang yang memiliki stok lab (seperti C150 500 pcs, alat ukur, tang potong, dll)
-     *    selalu memiliki stok tersedia (S = ...) di kolom pengeluaran dan tidak terkunci/0.
-     * 2. Pengguna tidak dapat mengeluarkan melebihi total stok fisik lab yang ada.
+     * S(item, tanggal) = Total Masuk (<= tanggal) - Total Keluar (< tanggal)
+     * Menghasilkan stok fisik yang tersedia TEPAT SEBELUM pengeluaran tanggal tersebut dilakukan.
+     * Mengikuti prinsip: barang hanya dapat dikeluarkan jika SUDAH MASUK pada tanggal tersebut atau sebelumnya.
      */
     public function getRunningStockDataProperty(): array
     {
-        $matrixData   = $this->matrixData;
-        $runningStock = [];
+        $itemIds = $this->matrixItems->pluck('id')->toArray();
+        if (empty($itemIds) || empty($this->activeDates)) {
+            return [];
+        }
 
-        foreach ($this->matrixItems as $item) {
-            $currentStock = (int) ($item->stock?->stok_tersedia ?? 0);
+        $maxDate = max($this->activeDates);
+
+        // Ambil semua transaksi masuk & keluar sampai dengan tanggal aktif terjauh
+        $transactions = Transaction::whereIn('item_id', $itemIds)
+            ->whereIn('tipe', ['masuk', 'keluar'])
+            ->whereDate('created_at', '<=', $maxDate)
+            ->selectRaw('item_id, tipe, DATE(created_at) as tgl, SUM(qty) as total_qty')
+            ->groupBy('item_id', 'tipe', 'tgl')
+            ->get();
+
+        $masukByItem  = [];
+        $keluarByItem = [];
+
+        foreach ($transactions as $tx) {
+            if ($tx->tipe === 'masuk') {
+                $masukByItem[$tx->item_id][$tx->tgl] = (int) $tx->total_qty;
+            } else {
+                $keluarByItem[$tx->item_id][$tx->tgl] = (int) $tx->total_qty;
+            }
+        }
+
+        $runningStock = [];
+        foreach ($itemIds as $id) {
+            $itemMasuk  = $masukByItem[$id] ?? [];
+            $itemKeluar = $keluarByItem[$id] ?? [];
 
             foreach ($this->activeDates as $date) {
-                $cellQty = (int) ($matrixData[$item->id][$date] ?? 0);
-                $runningStock[$item->id][$date] = max(0, $currentStock + $cellQty);
+                // Total Masuk akumulatif sampai dengan tanggal ini (<= $date)
+                $totalMasuk = 0;
+                foreach ($itemMasuk as $tgl => $q) {
+                    if ($tgl <= $date) {
+                        $totalMasuk += $q;
+                    }
+                }
+
+                // Total Keluar akumulatif SEBELUM tanggal ini (< $date)
+                $totalKeluarBefore = 0;
+                foreach ($itemKeluar as $tgl => $q) {
+                    if ($tgl < $date) {
+                        $totalKeluarBefore += $q;
+                    }
+                }
+
+                // Stok Tersedia pada tanggal ini
+                $runningStock[$id][$date] = max(0, $totalMasuk - $totalKeluarBefore);
             }
         }
 
