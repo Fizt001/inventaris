@@ -38,9 +38,9 @@ return new class extends Migration
                     'harga_saat_itu' => $item->harga_satuan ?? 0,
                     'nilai_total'    => $qty * ($item->harga_satuan ?? 0),
                     'ref_type'       => 'barang_masuk',
-                    'catatan'        => "Penerimaan Tgl 2026-11-01: {$qty} (Yayasan)",
+                    'catatan'        => "Penerimaan Tgl 2026-09-20: {$qty} (Yayasan)",
                     'user_id'        => $userId,
-                    'created_at'     => Carbon::parse('2026-11-01 12:00:00'),
+                    'created_at'     => Carbon::parse('2026-09-20 12:00:00'),
                 ]);
             }
         }
@@ -55,3 +55,4 @@ return new class extends Migration
             ->delete();
     }
 };
+

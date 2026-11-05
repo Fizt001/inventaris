@@ -354,6 +354,7 @@ class BarangKeluarPage extends Page
         unset($this->runningStockData);
         unset($this->matrixData);
         unset($this->itemMonthTotals);
+        unset($this->itemRemainingStocks);
     }
 
     /**
@@ -409,6 +410,7 @@ class BarangKeluarPage extends Page
         unset($this->runningStockData);
         unset($this->matrixData);
         unset($this->itemMonthTotals);
+        unset($this->itemRemainingStocks);
     }
 
     /**
@@ -586,6 +588,57 @@ class BarangKeluarPage extends Page
     }
 
     /**
+     * Sisa stok per barang pada periode (bulan & tahun) yang sedang dipilih.
+     * - Jika bulan berjalan / masa depan: mengacu ke stok fisik lab saat ini (stocks.stok_tersedia).
+     * - Jika bulan lalu (riwayat): mengacu ke saldo fisik akhir bulan tersebut (Total Masuk <= akhir bulan - Total Keluar <= akhir bulan).
+     */
+    public function getItemRemainingStocksProperty(): array
+    {
+        $selectedPeriod = Carbon::createFromDate($this->selectedYear, $this->selectedMonth, 1);
+        $isCurrentOrFuture = $selectedPeriod->isCurrentMonth() || $selectedPeriod->isFuture();
+
+        $sisa = [];
+
+        if ($isCurrentOrFuture) {
+            foreach ($this->matrixItems as $item) {
+                $sisa[$item->id] = (int) ($item->stock?->stok_tersedia ?? 0);
+            }
+            return $sisa;
+        }
+
+        $endDate = $selectedPeriod->copy()->endOfMonth();
+        $itemIds = $this->matrixItems->pluck('id')->toArray();
+
+        if (empty($itemIds)) {
+            return [];
+        }
+
+        $masuk = Transaction::whereIn('item_id', $itemIds)
+            ->where('tipe', 'masuk')
+            ->where('created_at', '<=', $endDate)
+            ->selectRaw('item_id, SUM(qty) as total')
+            ->groupBy('item_id')
+            ->pluck('total', 'item_id')
+            ->toArray();
+
+        $keluar = Transaction::whereIn('item_id', $itemIds)
+            ->where('tipe', 'keluar')
+            ->where('created_at', '<=', $endDate)
+            ->selectRaw('item_id, SUM(qty) as total')
+            ->groupBy('item_id')
+            ->pluck('total', 'item_id')
+            ->toArray();
+
+        foreach ($this->matrixItems as $item) {
+            $totalMasuk  = (int) ($masuk[$item->id] ?? 0);
+            $totalKeluar = (int) ($keluar[$item->id] ?? 0);
+            $sisa[$item->id] = max(0, $totalMasuk - $totalKeluar);
+        }
+
+        return $sisa;
+    }
+
+    /**
      * Update angka barang keluar pada sel tanggal tertentu
      */
     public function updateOutgoingQty(int $itemId, string $date, mixed $newQty): void
@@ -707,6 +760,7 @@ class BarangKeluarPage extends Page
         unset($this->runningStockData);
         unset($this->matrixData);
         unset($this->itemMonthTotals);
+        unset($this->itemRemainingStocks);
     }
 
     /**

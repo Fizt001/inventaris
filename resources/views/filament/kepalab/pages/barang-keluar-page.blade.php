@@ -236,6 +236,7 @@
                         $matrixData    = $this->matrixData;
                         $runningStocks = $this->runningStockData;
                         $itemTotals    = $this->itemMonthTotals;
+                        $itemSisa      = $this->itemRemainingStocks;
                         $itemsList     = $this->matrixItems;
                     @endphp
 
@@ -243,7 +244,7 @@
                         @forelse ($itemsList as $item)
                             @php
                                 $totalKeluarBulanIni = $itemTotals[$item->id] ?? 0;
-                                $sisaStok = $item->stock?->stok_tersedia ?? 0;
+                                $sisaStok = $itemSisa[$item->id] ?? 0;
                             @endphp
                             <tr wire:key="outgoing-item-row-{{ $item->id }}" class="hover:bg-slate-50 dark:hover:bg-gray-800/50 transition-colors">
                                 {{-- 0. Checkbox per Barang --}}
