@@ -94,11 +94,25 @@ class DaftarBarangPage extends InlineManagePage
                         ->required()
                         ->maxLength(255)
                         ->placeholder('Contoh: Resistor 10K Ohm 1/4W, Solder Listrik 40W, Osiloskop Digital')
-                        ->helperText('Nama alat atau bahan yang akan didaftarkan ke sistem.')
+                        ->helperText('Kategori dan lokasi simpan lab dilengkapi lewat tombol "Lengkapi Data" di tabel.')
                         ->columnSpan(['default' => 12, 'sm' => 8, 'lg' => 9]),
                 ]),
             ])
             ->statePath('createData');
+    }
+
+    public function create(): void
+    {
+        $data = $this->form->getState();
+        $this->handleCreate($data);
+
+        $this->form->fill();
+
+        Notification::make()
+            ->title('Barang berhasil didaftarkan!')
+            ->body('Silakan klik tombol "Lengkapi Data" pada baris barang di tabel untuk menentukan kategori dan lokasi penyimpanan.')
+            ->success()
+            ->send();
     }
 
     protected function handleCreate(array $data): void
@@ -165,6 +179,22 @@ class DaftarBarangPage extends InlineManagePage
                     ->weight('bold')
                     ->wrap(),
 
+                Tables\Columns\TextColumn::make('lokasi_simpan')
+                    ->label('Ruang Lab & Posisi Simpan')
+                    ->state(function (Item $record): string {
+                        $parts = array_filter([
+                            $record->room?->nama,
+                            $record->roomArea?->nama,
+                            $record->rak_posisi ? "Rak/Meja: {$record->rak_posisi}" : null,
+                        ]);
+
+                        return count($parts) ? implode(' • ', $parts) : '⚠️ Belum ditentukan lokasi';
+                    })
+                    ->badge(fn (Item $record) => ! $record->unit_room_id)
+                    ->color(fn (Item $record) => $record->unit_room_id ? 'gray' : 'warning')
+                    ->icon(fn (Item $record) => $record->unit_room_id ? 'heroicon-m-map-pin' : 'heroicon-m-exclamation-circle')
+                    ->wrap(),
+
                 Tables\Columns\TextColumn::make('satuan')
                     ->label('Satuan')
                     ->alignCenter()
@@ -177,7 +207,7 @@ class DaftarBarangPage extends InlineManagePage
                     ->color(fn (string $state): string => Item::TIPE_COLORS[$state] ?? 'gray')
                     ->formatStateUsing(fn ($state) => Item::TIPE_LABELS[$state] ?? $state),
             ])
-            ->recordAction(Tables\Actions\ViewAction::class)
+            ->recordAction(Tables\Actions\EditAction::class)
             ->filters([
                 Tables\Filters\Filter::make('belum_dikelompokkan')
                     ->label('⚠️ Belum Dikelompokkan')
@@ -263,10 +293,13 @@ class DaftarBarangPage extends InlineManagePage
                     ]),
 
                 Tables\Actions\EditAction::make()
-                    ->label('Edit')
+                    ->label('Lengkapi Data')
                     ->icon('heroicon-m-pencil-square')
+                    ->color('primary')
                     ->slideOver()
                     ->modalWidth('2xl')
+                    ->modalHeading('Lengkapi Data & Lokasi Penyimpanan')
+                    ->modalDescription('Lengkapi kategori, ruang lab, posisi rak/meja penyimpanan, tipe barang, satuan, dan spesifikasi teknis.')
                     ->form([
                         Forms\Components\Grid::make(2)->schema([
                             Forms\Components\TextInput::make('kode')

@@ -125,9 +125,14 @@
                 <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400 shrink-0">
                     <x-filament::icon icon="heroicon-o-plus-circle" class="h-4 w-4" />
                 </div>
-                <h2 class="text-xs sm:text-sm font-extrabold text-gray-900 dark:text-white truncate">
-                    {{ $this->getCreateHeading() }}
-                </h2>
+                <div>
+                    <h2 class="text-xs sm:text-sm font-extrabold text-gray-900 dark:text-white truncate">
+                        {{ $this->getCreateHeading() }}
+                    </h2>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400">
+                        Pendaftaran awal hanya memerlukan Kode & Nama. Kategori serta lokasi simpan dilengkapi di tabel bawah.
+                    </p>
+                </div>
             </div>
 
             {{-- Action Buttons --}}
@@ -214,6 +219,19 @@
         @endif
     </div>
 
+    {{-- ═══ NARASI PANDUAN KEPALA LAB: LENGKAPI DATA DI DALAM TABEL ═══ --}}
+    <div class="rounded-xl border border-sky-200 bg-sky-50/90 dark:border-sky-900/60 dark:bg-sky-950/40 p-3 text-xs text-sky-950 dark:text-sky-200 shadow-2xs my-1">
+        <div class="flex items-center gap-2.5">
+            <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-sky-100 text-sky-700 dark:bg-sky-900/60 dark:text-sky-300 shrink-0">
+                <x-filament::icon icon="heroicon-m-information-circle" class="h-4 w-4" />
+            </div>
+            <div class="leading-relaxed">
+                <span class="font-bold">Panduan Kepala Lab:</span>
+                Kategori barang, ruang lab, posisi rak/meja penyimpanan, serta spesifikasi teknis <strong>tidak perlu diisi saat create</strong>. Silakan klik tombol <strong class="text-indigo-600 dark:text-indigo-400">"Lengkapi Data"</strong> pada baris barang di tabel berikut untuk melengkapi detailnya.
+            </div>
+        </div>
+    </div>
+
     {{-- ═══ DATA TABLE ═══ --}}
     <div>
         {{ $this->table }}
@@ -221,3 +239,4 @@
 
     <x-filament-actions::modals />
 </x-filament-panels::page>
+
