@@ -67,6 +67,18 @@
                     </option>
                 @endforeach
             </select>
+
+            <a
+                href="/admin"
+                style="display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 6px; padding: 6px 8px; background: #2563eb; color: #ffffff; border-radius: 6px; font-size: 11px; font-weight: 700; text-decoration: none; transition: background 0.2s;"
+                onmouseover="this.style.background='#1d4ed8'"
+                onmouseout="this.style.background='#2563eb'"
+            >
+                <svg style="width: 14px; height: 14px;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Kembali ke Menu Admin (/admin)</span>
+            </a>
         </div>
     @endif
 </div>

@@ -32,6 +32,24 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('Inventaris SMK')
             ->brandLogo(fn () => view('filament.brand'))
             ->darkMode(true)
+            ->userMenuItems([
+                \Filament\Navigation\MenuItem::make()
+                    ->label('Buka Panel Lab & Bengkel')
+                    ->url('/kepalab')
+                    ->icon('heroicon-o-beaker'),
+                \Filament\Navigation\MenuItem::make()
+                    ->label('Buka Panel Gudang ATK')
+                    ->url('/gudang')
+                    ->icon('heroicon-o-building-storefront'),
+                \Filament\Navigation\MenuItem::make()
+                    ->label('Buka Panel Wakasarpras')
+                    ->url('/wakasarpras')
+                    ->icon('heroicon-o-clipboard-document-check'),
+                \Filament\Navigation\MenuItem::make()
+                    ->label('Buka Panel Kepala Sekolah')
+                    ->url('/kepsek')
+                    ->icon('heroicon-o-academic-cap'),
+            ])
             ->colors([
                 'primary' => Color::Indigo,
                 'gray'    => Color::Slate,

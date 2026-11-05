@@ -30,6 +30,13 @@ class KepalabPanelProvider extends PanelProvider
             ->brandName('Inventaris SMK — Lab & Bengkel')
             ->brandLogo(fn () => view('filament.brand'))
             ->darkMode(true)
+            ->userMenuItems([
+                \Filament\Navigation\MenuItem::make()
+                    ->label('Kembali ke Panel Utama Admin')
+                    ->url('/admin')
+                    ->icon('heroicon-o-shield-check')
+                    ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') ?? false),
+            ])
             ->renderHook(
                 \Filament\View\PanelsRenderHook::SIDEBAR_NAV_START,
                 fn () => view('filament.kepalab.components.role-switcher')
