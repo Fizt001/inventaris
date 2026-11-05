@@ -113,10 +113,13 @@ class BarangMasukPage extends Page
             ->pluck('tgl')
             ->toArray();
 
-        // Jika bulan sekarang dan belum ada tanggal transaksi, sertakan hari ini
+        // Jika bulan sekarang, selalu sertakan hari ini di kolom aktif agar siap diisi transaksi
         $today = now()->toDateString();
-        if (empty($dates) && $this->selectedYear === (int) now()->year && $this->selectedMonth === (int) now()->month) {
-            $dates[] = $today;
+        if ($this->selectedYear === (int) now()->year && $this->selectedMonth === (int) now()->month) {
+            if (! in_array($today, $dates)) {
+                $dates[] = $today;
+                sort($dates);
+            }
         }
 
         $this->activeDates = $dates;
